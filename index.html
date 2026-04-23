@@ -1,0 +1,1571 @@
+<!-- VERSION: 2.0 - Hamburger-menu + Madretter side -->
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Shop for us 🛒</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --orange: #FF6B2B;
+      --orange-light: #FF8C55;
+      --orange-pale: #FFF0E8;
+      --bg: #F7F5F2;
+      --card: #FFFFFF;
+      --text: #1A1A1A;
+      --muted: #888;
+      --done-bg: #F0F0F0;
+      --done-text: #AAAAAA;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--orange);
+      color: white;
+      padding: 18px 20px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(255,107,43,0.35);
+    }
+    header h1 { font-size: 1.35rem; font-weight: 800; flex: 1; letter-spacing: -0.3px; }
+    header .counter {
+      font-size: 0.8rem;
+      background: rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* ── HAMBURGER ── */
+    #hamburger {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    #hamburger:active { background: rgba(255,255,255,0.35); }
+    #hamburger span {
+      display: block;
+      width: 18px; height: 2px;
+      background: white;
+      border-radius: 2px;
+      transition: all 0.25s;
+    }
+    #hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    #hamburger.open span:nth-child(2) { opacity: 0; }
+    #hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── NAV MENU ── */
+    #nav-menu {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: white;
+      z-index: 200;
+      transform: translateY(-100%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      padding-top: 70px;
+      padding-bottom: 8px;
+    }
+    #nav-menu.open { transform: translateY(0); }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 24px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      border-radius: 12px;
+      margin: 2px 10px;
+      width: calc(100% - 20px);
+      transition: background 0.15s;
+    }
+    .nav-item:hover { background: var(--orange-pale); }
+    .nav-item.active {
+      background: var(--orange-pale);
+      color: var(--orange);
+    }
+    .nav-item .nav-icon { font-size: 1.3rem; }
+    .nav-divider {
+      height: 1px;
+      background: #eee;
+      margin: 6px 24px;
+    }
+
+    /* ── FAB ── */
+    .fab-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 2px solid rgba(255,255,255,0.5);
+      border-radius: 22px;
+      padding: 8px 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .fab-btn:active { background: rgba(255,255,255,0.35); }
+    .fab-btn.open { background: rgba(255,255,255,0.35); }
+
+    /* ── VIEWS ── */
+    .view { display: none; flex: 1; flex-direction: column; }
+    .view.active { display: flex; }
+
+    /* ── LIST ── */
+    #list, #retter-list {
+      flex: 1;
+      padding: 12px 14px 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty .emoji { font-size: 3rem; margin-bottom: 12px; }
+    .empty p { font-size: 0.95rem; }
+
+    /* ── ITEM CARD (indkøb) ── */
+    .item {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: slideIn 0.25s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .item.done { background: var(--done-bg); }
+
+    .item-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 14px;
+    }
+
+    /* checkbox */
+    .check-btn {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2.5px solid #ddd;
+      background: white;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+    .item.done .check-btn {
+      background: var(--orange);
+      border-color: var(--orange);
+    }
+
+    .item-name {
+      flex: 1;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .item.done .item-name {
+      color: var(--done-text);
+      text-decoration: line-through;
+    }
+    .item-qty {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 4px;
+    }
+    .icon-btn {
+      width: 32px; height: 32px;
+      border: none; background: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      color: var(--muted);
+      transition: background 0.15s;
+    }
+    .icon-btn:active { background: #eee; }
+    .icon-btn.del { color: #FF4444; }
+
+    /* extras row */
+    .item-extras {
+      padding: 0 14px 12px 52px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .item-note {
+      font-size: 0.82rem;
+      color: #666;
+      background: #F9F7F4;
+      border-radius: 8px;
+      padding: 5px 9px;
+    }
+    .item-link {
+      font-size: 0.82rem;
+      color: var(--orange);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
+    }
+    .item-link:hover { text-decoration: underline; }
+    .item-img {
+      max-width: 120px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    /* ── RET CARD ── */
+    .ret {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: slideIn 0.25s ease;
+      border-left: 4px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .ret.planlagt {
+      border-left-color: var(--orange);
+      background: #FFFAF7;
+    }
+
+    .ret-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 14px;
+    }
+
+    .ret-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .ret-name {
+      flex: 1;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .planlagt-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      background: var(--orange);
+      color: white;
+      border-radius: 20px;
+      padding: 3px 9px;
+      white-space: nowrap;
+    }
+
+    /* plan-btn */
+    .plan-btn {
+      width: 32px; height: 32px;
+      border: 2px solid #eee;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .ret.planlagt .plan-btn {
+      border-color: var(--orange);
+      background: var(--orange-pale);
+    }
+
+    /* ── TILFÆLDIG RET BANNER ── */
+    #random-banner {
+      margin: 12px 14px 0;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      display: none;
+      animation: slideIn 0.25s ease;
+      border: 2px solid var(--orange);
+    }
+    #random-banner .random-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    #random-banner .random-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    #random-banner .random-close {
+      float: right;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: var(--muted);
+      margin-top: -2px;
+    }
+
+    /* ── BOTTOM SHEET ── */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 300;
+      backdrop-filter: blur(2px);
+    }
+    .overlay.show { display: block; }
+
+    .sheet {
+      position: fixed;
+      bottom: -100%;
+      left: 0; right: 0;
+      background: white;
+      border-radius: 24px 24px 0 0;
+      padding: 20px 20px 40px;
+      z-index: 400;
+      transition: bottom 0.35s cubic-bezier(0.4,0,0.2,1);
+      max-height: 90dvh;
+      overflow-y: auto;
+    }
+    .sheet.show { bottom: 0; }
+
+    .sheet-handle {
+      width: 40px; height: 4px;
+      background: #ddd;
+      border-radius: 2px;
+      margin: 0 auto 18px;
+    }
+    .sheet h2 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    /* ── FORM FIELDS ── */
+    .field { margin-bottom: 14px; position: relative; }
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .field input, .field textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #eee;
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+      background: #fafafa;
+    }
+    .field input:focus, .field textarea:focus { border-color: var(--orange); background: white; }
+    .field textarea { resize: none; min-height: 70px; }
+
+    /* autocomplete dropdown */
+    .autocomplete-list {
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: white;
+      border: 2px solid var(--orange);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      max-height: 160px;
+      overflow-y: auto;
+      z-index: 500;
+      display: none;
+    }
+    .autocomplete-list.show { display: block; }
+    .ac-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: background 0.1s;
+    }
+    .ac-item:hover { background: var(--orange-pale); }
+
+    /* qty */
+    .qty-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 2px solid #eee;
+      border-radius: 12px;
+      overflow: hidden;
+      width: fit-content;
+    }
+    .qty-btn {
+      width: 44px; height: 44px;
+      border: none;
+      background: #F5F5F5;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+    .qty-btn:active { background: #eee; }
+    #qty-display {
+      width: 44px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 800;
+      background: white;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* image preview */
+    #img-preview {
+      max-width: 100%;
+      border-radius: 12px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* file input styling */
+    .file-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border: 2px dashed #ddd;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--muted);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .file-label:hover { border-color: var(--orange); color: var(--orange); }
+    input[type="file"] { display: none; }
+
+    /* submit btn */
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--orange);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .submit-btn:active { transform: scale(0.98); }
+    .submit-btn:hover { background: var(--orange-light); }
+
+    /* ── EDIT SHEET ── */
+    #edit-sheet .submit-btn { background: #333; }
+    #edit-sheet .submit-btn:hover { background: #555; }
+    #edit-ret-sheet .submit-btn { background: #333; }
+    #edit-ret-sheet .submit-btn:hover { background: #555; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 999;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* image modal */
+    #img-modal {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    #img-modal.show { display: flex; }
+    #img-modal img { max-width: 95vw; max-height: 85vh; border-radius: 12px; }
+    #img-modal-close {
+      position: absolute; top: 20px; right: 20px;
+      font-size: 2rem; color: white; cursor: pointer; line-height: 1;
+    }
+
+    /* ── RANDOM BTN i header ── */
+    .random-fab {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 2px solid rgba(255,255,255,0.5);
+      border-radius: 22px;
+      padding: 8px 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .random-fab:active { background: rgba(255,255,255,0.35); }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header id="main-header">
+  <button id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <h1 id="header-title">🛒 Shop 4 us</h1>
+  <div class="counter" id="counter">0 tilbage</div>
+  <button class="fab-btn" id="fab">+ Tilføj vare</button>
+</header>
+
+<!-- ── NAV MENU ── -->
+<div id="nav-menu">
+  <button class="nav-item active" id="nav-shop" onclick="switchView('shop')">
+    <span class="nav-icon">🛒</span> Indkøbsseddel
+  </button>
+  <div class="nav-divider"></div>
+  <button class="nav-item" id="nav-retter" onclick="switchView('retter')">
+    <span class="nav-icon">🍽️</span> Madretter
+  </button>
+  <div class="nav-divider"></div>
+  <button class="nav-item" id="nav-kager" onclick="switchView('kager')">
+    <span class="nav-icon">🧁</span> Kager
+  </button>
+</div>
+
+<!-- ── VIEW: INDKØB ── -->
+<div class="view active" id="view-shop">
+  <div id="list"></div>
+</div>
+
+<!-- ── VIEW: MADRETTER ── -->
+<div class="view" id="view-retter">
+  <div id="random-banner">
+    <span class="random-close" onclick="closeRandom()">✕</span>
+    <div class="random-label">🎲 Tilfældig ret i dag</div>
+    <div class="random-name" id="random-name"></div>
+  </div>
+  <div id="retter-list"></div>
+</div>
+
+<!-- ── VIEW: KAGER ── -->
+<div class="view" id="view-kager">
+  <div id="kager-list"></div>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay"></div>
+
+<!-- ADD SHEET (indkøb) -->
+<div class="sheet" id="add-sheet">
+  <div class="sheet-handle"></div>
+  <h2>Tilføj vare</h2>
+
+  <div class="field" id="name-field-wrap">
+    <label>Vare *</label>
+    <input type="text" id="item-name" placeholder="fx Mælk" autocomplete="off" />
+    <div class="autocomplete-list" id="ac-list"></div>
+  </div>
+
+  <div class="field">
+    <label>Antal</label>
+    <div class="qty-row">
+      <button class="qty-btn" id="qty-minus">−</button>
+      <div id="qty-display">1</div>
+      <button class="qty-btn" id="qty-plus">+</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Note (valgfri)</label>
+    <textarea id="item-note" placeholder="fx skummet, stor pakke..."></textarea>
+  </div>
+
+  <div class="field">
+    <label>Link til tilbud/ugeavis (valgfri)</label>
+    <input type="url" id="item-link" placeholder="https://..." />
+  </div>
+
+  <div class="field">
+    <label>Billede/screenshot (valgfri)</label>
+    <label class="file-label" for="item-img">
+      📷 Vælg billede fra galleri
+    </label>
+    <input type="file" id="item-img" accept="image/*" />
+    <img id="img-preview" alt="preview" />
+  </div>
+
+  <button class="submit-btn" id="add-btn">Tilføj til listen ✓</button>
+</div>
+
+<!-- EDIT SHEET (indkøb) -->
+<div class="sheet" id="edit-sheet">
+  <div class="sheet-handle"></div>
+  <h2>Rediger vare</h2>
+  <input type="hidden" id="edit-id" />
+
+  <div class="field">
+    <label>Vare</label>
+    <input type="text" id="edit-name" />
+  </div>
+
+  <div class="field">
+    <label>Antal</label>
+    <div class="qty-row">
+      <button class="qty-btn" id="edit-qty-minus">−</button>
+      <div id="edit-qty-display">1</div>
+      <button class="qty-btn" id="edit-qty-plus">+</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Note</label>
+    <textarea id="edit-note"></textarea>
+  </div>
+
+  <div class="field">
+    <label>Link</label>
+    <input type="url" id="edit-link" placeholder="https://..." />
+  </div>
+
+  <div class="field">
+    <label>Nyt billede (erstatter eksisterende)</label>
+    <label class="file-label" for="edit-img">
+      📷 Vælg billede
+    </label>
+    <input type="file" id="edit-img" accept="image/*" />
+    <img id="edit-img-preview" alt="preview" style="max-width:100%;border-radius:12px;margin-top:8px;display:none;" />
+  </div>
+
+  <button class="submit-btn" id="save-btn">Gem ændringer</button>
+</div>
+
+<!-- ADD SHEET (ret) -->
+<div class="sheet" id="add-ret-sheet">
+  <div class="sheet-handle"></div>
+  <h2>Tilføj ret</h2>
+
+  <div class="field">
+    <label>Rettens navn *</label>
+    <input type="text" id="ret-name" placeholder="fx Spaghetti Bolognese" autocomplete="off" />
+  </div>
+
+  <button class="submit-btn" id="add-ret-btn">Tilføj ret ✓</button>
+</div>
+
+<!-- EDIT SHEET (ret) -->
+<div class="sheet" id="edit-ret-sheet">
+  <div class="sheet-handle"></div>
+  <h2>Rediger ret</h2>
+  <input type="hidden" id="edit-ret-id" />
+
+  <div class="field">
+    <label>Rettens navn</label>
+    <input type="text" id="edit-ret-name" />
+  </div>
+
+  <button class="submit-btn" id="save-ret-btn">Gem ændringer</button>
+</div>
+
+<!-- ADD SHEET (kage) -->
+<div class="sheet" id="add-kage-sheet">
+  <div class="sheet-handle"></div>
+  <h2>Tilføj kage</h2>
+
+  <div class="field">
+    <label>Kagens navn *</label>
+    <input type="text" id="kage-name" placeholder="fx Chokoladekage" autocomplete="off" />
+  </div>
+
+  <div class="field">
+    <label>Opskrift (valgfri)</label>
+    <textarea id="kage-opskrift" placeholder="Skriv opskriften her..." style="min-height:140px;"></textarea>
+  </div>
+
+  <button class="submit-btn" id="add-kage-btn">Tilføj kage ✓</button>
+</div>
+
+<!-- EDIT SHEET (kage) -->
+<div class="sheet" id="edit-kage-sheet">
+  <div class="sheet-handle"></div>
+  <h2>Rediger kage</h2>
+  <input type="hidden" id="edit-kage-id" />
+
+  <div class="field">
+    <label>Kagens navn</label>
+    <input type="text" id="edit-kage-name" />
+  </div>
+
+  <div class="field">
+    <label>Opskrift</label>
+    <textarea id="edit-kage-opskrift" style="min-height:140px;"></textarea>
+  </div>
+
+  <button class="submit-btn" id="save-kage-btn" style="background:#333;">Gem ændringer</button>
+</div>
+
+<!-- INGREDIENSER SHEET -->
+<div class="sheet" id="ingredienser-sheet">
+  <div class="sheet-handle"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+    <div id="ingredienser-ret-ikon" style="font-size:1.6rem;"></div>
+    <h2 style="margin:0;" id="ingredienser-ret-navn">Ingredienser</h2>
+  </div>
+
+  <!-- Opskrift sektion (kun synlig for kager) -->
+  <div id="opskrift-sektion" style="display:none;margin-bottom:16px;">
+    <div style="background:var(--orange-pale);border-radius:12px;padding:14px 16px;">
+      <div style="font-size:0.75rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">📋 Opskrift</div>
+      <div id="opskrift-tekst" style="font-size:0.9rem;font-weight:600;color:var(--text);white-space:pre-wrap;line-height:1.5;"></div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:16px;">
+    <input type="text" id="ny-ingrediens" placeholder="fx Løg" autocomplete="off"
+      style="flex:1;padding:12px 14px;border:2px solid #eee;border-radius:12px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:600;outline:none;background:#fafafa;transition:border-color 0.2s;"
+      onfocus="this.style.borderColor='var(--orange)';this.style.background='white'"
+      onblur="this.style.borderColor='#eee';this.style.background='#fafafa'"
+      onkeydown="if(event.key==='Enter')window.tilfoejIngrediens()" />
+    <button onclick="window.tilfoejIngrediens()"
+      style="padding:12px 18px;background:var(--orange);color:white;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:800;cursor:pointer;transition:background 0.2s;">+</button>
+  </div>
+
+  <div id="ingredienser-liste" style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px;min-height:40px;"></div>
+
+  <button class="submit-btn" id="tilfoej-alle-btn" onclick="window.tilfoejAlleIngredienserTilIndkoeb()" style="display:none;">
+    🛒 Tilføj ingredienser til indkøbsliste
+  </button>
+</div>
+
+<!-- IMAGE MODAL -->
+<div id="img-modal">
+  <span id="img-modal-close">✕</span>
+  <img id="img-modal-img" src="" alt="" />
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js" crossorigin="anonymous"></script>
+
+<script>
+window.addEventListener('load', function() {
+if (typeof firebase === 'undefined') {
+  document.getElementById('list').innerHTML = '<div class="empty"><div class="emoji">❌</div><p><strong>Firebase kunne ikke indlæses</strong></p><p>Tjek din internetforbindelse og genindlæs siden</p></div>';
+  return;
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAGuXXCH3azLxN6t7AZ6Y22D-yA_IcpGFY",
+  authDomain: "shop-for-us.firebaseapp.com",
+  projectId: "shop-for-us",
+  storageBucket: "shop-for-us.firebasestorage.app",
+  messagingSenderId: "146109648647",
+  appId: "1:146109648647:web:077dee4eaaad14502d3fa2",
+  databaseURL: "https://shop-for-us-default-rtdb.europe-west1.firebasedatabase.app"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const itemsRef = db.ref('/items');
+const retterRef = db.ref('/retter');
+
+// ── State ──
+let items = {};
+let retter = {};
+let kager = {};
+let currentView = 'shop';
+let addQty = 1;
+let editQty = 1;
+let addImgBase64 = null;
+let editImgBase64 = null;
+
+// ── View skift ──
+window.switchView = function(view) {
+  currentView = view;
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-' + view).classList.add('active');
+
+  let randomBtn = document.getElementById('random-fab-btn');
+
+  if (view === 'shop') {
+    document.getElementById('header-title').textContent = '🛒 Shop 4 us';
+    document.getElementById('fab').textContent = '+ Tilføj vare';
+    document.getElementById('counter').style.display = '';
+    if (randomBtn) randomBtn.style.display = 'none';
+    renderCounter();
+  } else if (view === 'retter') {
+    document.getElementById('header-title').textContent = '🍽️ Madretter';
+    document.getElementById('fab').textContent = '+ Tilføj ret';
+    document.getElementById('counter').style.display = 'none';
+    if (!randomBtn) {
+      randomBtn = document.createElement('button');
+      randomBtn.id = 'random-fab-btn';
+      randomBtn.className = 'random-fab';
+      randomBtn.textContent = '🎲';
+      randomBtn.title = 'Hvad laver vi i dag?';
+      randomBtn.onclick = window.pickRandom;
+      document.getElementById('main-header').insertBefore(randomBtn, document.getElementById('fab'));
+    }
+    randomBtn.style.display = '';
+  } else if (view === 'kager') {
+    document.getElementById('header-title').textContent = '🧁 Kager';
+    document.getElementById('fab').textContent = '+ Tilføj kage';
+    document.getElementById('counter').style.display = 'none';
+    if (randomBtn) randomBtn.style.display = 'none';
+  }
+
+  closeNav();
+};
+
+// ── Hamburger ──
+const hamburger = document.getElementById('hamburger');
+const navMenu = document.getElementById('nav-menu');
+
+hamburger.addEventListener('click', () => {
+  const isOpen = navMenu.classList.contains('open');
+  if (isOpen) {
+    closeNav();
+  } else {
+    navMenu.classList.add('open');
+    hamburger.classList.add('open');
+  }
+});
+
+function closeNav() {
+  navMenu.classList.remove('open');
+  hamburger.classList.remove('open');
+}
+
+// ── Autocomplete history (localStorage) ──
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem('shopHistory') || '[]'); }
+  catch { return []; }
+}
+function addToHistory(name) {
+  let h = getHistory();
+  h = [name, ...h.filter(x => x.toLowerCase() !== name.toLowerCase())].slice(0, 50);
+  localStorage.setItem('shopHistory', JSON.stringify(h));
+}
+
+// ── UI helpers ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function openSheet(id) {
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById(id).classList.add('show');
+  if (id === 'add-sheet' || id === 'add-ret-sheet') {
+    document.getElementById('fab').classList.add('open');
+  }
+}
+function closeSheets() {
+  document.querySelectorAll('.sheet').forEach(s => s.classList.remove('show'));
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('fab').classList.remove('open');
+}
+
+// ── FAB (håndterer alle views) ──
+const fab = document.getElementById('fab');
+fab.addEventListener('click', () => {
+  if (currentView === 'shop') {
+    if (document.getElementById('add-sheet').classList.contains('show')) {
+      closeSheets();
+    } else {
+      resetAddForm();
+      openSheet('add-sheet');
+      setTimeout(() => document.getElementById('item-name').focus(), 300);
+    }
+  } else if (currentView === 'retter') {
+    if (document.getElementById('add-ret-sheet').classList.contains('show')) {
+      closeSheets();
+    } else {
+      document.getElementById('ret-name').value = '';
+      openSheet('add-ret-sheet');
+      setTimeout(() => document.getElementById('ret-name').focus(), 300);
+    }
+  } else if (currentView === 'kager') {
+    if (document.getElementById('add-kage-sheet').classList.contains('show')) {
+      closeSheets();
+    } else {
+      document.getElementById('kage-name').value = '';
+      document.getElementById('kage-opskrift').value = '';
+      openSheet('add-kage-sheet');
+      setTimeout(() => document.getElementById('kage-name').focus(), 300);
+    }
+  }
+});
+
+document.getElementById('overlay').addEventListener('click', () => {
+  closeSheets();
+  closeNav();
+});
+
+// ── Quantity controls (add) ──
+document.getElementById('qty-minus').addEventListener('click', () => {
+  if (addQty > 1) { addQty--; document.getElementById('qty-display').textContent = addQty; }
+});
+document.getElementById('qty-plus').addEventListener('click', () => {
+  addQty++; document.getElementById('qty-display').textContent = addQty;
+});
+
+// ── Quantity controls (edit) ──
+document.getElementById('edit-qty-minus').addEventListener('click', () => {
+  if (editQty > 1) { editQty--; document.getElementById('edit-qty-display').textContent = editQty; }
+});
+document.getElementById('edit-qty-plus').addEventListener('click', () => {
+  editQty++; document.getElementById('edit-qty-display').textContent = editQty;
+});
+
+// ── Image picker (add) ──
+document.getElementById('item-img').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    addImgBase64 = e.target.result;
+    const prev = document.getElementById('img-preview');
+    prev.src = addImgBase64;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+});
+
+// ── Image picker (edit) ──
+document.getElementById('edit-img').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    editImgBase64 = e.target.result;
+    const prev = document.getElementById('edit-img-preview');
+    prev.src = editImgBase64;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+});
+
+// ── Autocomplete ──
+const nameInput = document.getElementById('item-name');
+const acList = document.getElementById('ac-list');
+
+nameInput.addEventListener('input', () => {
+  const val = nameInput.value.trim().toLowerCase();
+  if (!val) { acList.classList.remove('show'); return; }
+  const matches = getHistory().filter(h => h.toLowerCase().startsWith(val));
+  if (!matches.length) { acList.classList.remove('show'); return; }
+  acList.innerHTML = matches.map(m =>
+    `<div class="ac-item" data-val="${escapeHtml(m)}">${escapeHtml(m)}</div>`
+  ).join('');
+  acList.classList.add('show');
+});
+
+acList.addEventListener('click', e => {
+  const it = e.target.closest('.ac-item');
+  if (!it) return;
+  nameInput.value = it.dataset.val;
+  acList.classList.remove('show');
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#name-field-wrap')) acList.classList.remove('show');
+});
+
+// ── Add item (indkøb) ──
+function resetAddForm() {
+  document.getElementById('item-name').value = '';
+  document.getElementById('item-note').value = '';
+  document.getElementById('item-link').value = '';
+  document.getElementById('item-img').value = '';
+  document.getElementById('img-preview').style.display = 'none';
+  addQty = 1;
+  document.getElementById('qty-display').textContent = '1';
+  addImgBase64 = null;
+  acList.classList.remove('show');
+}
+
+document.getElementById('add-btn').addEventListener('click', () => {
+  const name = document.getElementById('item-name').value.trim();
+  if (!name) { toast('Skriv en varenavn 👆'); return; }
+
+  const newItem = {
+    name,
+    qty: addQty,
+    note: document.getElementById('item-note').value.trim(),
+    link: document.getElementById('item-link').value.trim(),
+    img: addImgBase64 || '',
+    done: false,
+    created: Date.now()
+  };
+
+  itemsRef.push(newItem);
+  addToHistory(name);
+  closeSheets();
+  resetAddForm();
+  toast(`"${name}" tilføjet ✓`);
+});
+
+// ── Toggle done (indkøb) ──
+window.toggleDone = function(id) {
+  const item = items[id];
+  if (!item) return;
+  itemsRef.child(id).update({ done: !item.done });
+};
+
+// ── Delete item (indkøb) ──
+window.deleteItem = function(id) {
+  const item = items[id];
+  const navn = item ? `"${item.name}"` : 'denne vare';
+  if (!confirm(`Slet ${navn}?`)) return;
+  itemsRef.child(id).remove();
+  toast('Slettet 🗑');
+};
+
+// ── Open edit sheet (indkøb) ──
+window.openEdit = function(id) {
+  const item = items[id];
+  if (!item) return;
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-name').value = item.name || '';
+  document.getElementById('edit-note').value = item.note || '';
+  document.getElementById('edit-link').value = item.link || '';
+  editQty = item.qty || 1;
+  document.getElementById('edit-qty-display').textContent = editQty;
+  editImgBase64 = null;
+  const prev = document.getElementById('edit-img-preview');
+  if (item.img) { prev.src = item.img; prev.style.display = 'block'; }
+  else { prev.style.display = 'none'; }
+  openSheet('edit-sheet');
+};
+
+document.getElementById('save-btn').addEventListener('click', () => {
+  const id = document.getElementById('edit-id').value;
+  const name = document.getElementById('edit-name').value.trim();
+  if (!name) { toast('Varenavn må ikke være tomt'); return; }
+
+  const updates = {
+    name,
+    qty: editQty,
+    note: document.getElementById('edit-note').value.trim(),
+    link: document.getElementById('edit-link').value.trim(),
+  };
+  if (editImgBase64) updates.img = editImgBase64;
+
+  itemsRef.child(id).update(updates);
+  addToHistory(name);
+  closeSheets();
+  toast('Gemt ✓');
+});
+
+// ── Image modal ──
+document.getElementById('img-modal-close').addEventListener('click', () => {
+  document.getElementById('img-modal').classList.remove('show');
+});
+window.openImgModal = function(src) {
+  document.getElementById('img-modal-img').src = src;
+  document.getElementById('img-modal').classList.add('show');
+};
+
+// ════════════════════════════════
+// ── MADRETTER ──
+// ════════════════════════════════
+
+// ── Add ret ──
+document.getElementById('add-ret-btn').addEventListener('click', () => {
+  const name = document.getElementById('ret-name').value.trim();
+  if (!name) { toast('Skriv rettens navn 👆'); return; }
+
+  retterRef.push({
+    name,
+    planlagt: false,
+    created: Date.now()
+  });
+
+  closeSheets();
+  document.getElementById('ret-name').value = '';
+  toast(`"${name}" tilføjet ✓`);
+});
+
+// ── Toggle planlagt ──
+window.togglePlanlagt = function(id) {
+  const ret = retter[id];
+  if (!ret) return;
+  // Fjern "planlagt" fra alle andre, sæt på denne
+  const updates = {};
+  Object.keys(retter).forEach(k => {
+    updates[k + '/planlagt'] = (k === id) ? !ret.planlagt : false;
+  });
+  retterRef.update(updates);
+};
+
+// ── Delete ret ──
+window.deleteRet = function(id) {
+  const ret = retter[id];
+  const navn = ret ? `"${ret.name}"` : 'denne ret';
+  if (!confirm(`Slet ${navn}?`)) return;
+  retterRef.child(id).remove();
+  toast('Slettet 🗑');
+};
+
+// ── Open edit ret ──
+window.openEditRet = function(id) {
+  const ret = retter[id];
+  if (!ret) return;
+  document.getElementById('edit-ret-id').value = id;
+  document.getElementById('edit-ret-name').value = ret.name || '';
+  openSheet('edit-ret-sheet');
+};
+
+document.getElementById('save-ret-btn').addEventListener('click', () => {
+  const id = document.getElementById('edit-ret-id').value;
+  const name = document.getElementById('edit-ret-name').value.trim();
+  if (!name) { toast('Rettens navn må ikke være tomt'); return; }
+  retterRef.child(id).update({ name });
+  closeSheets();
+  toast('Gemt ✓');
+});
+
+// ── Tilfældig ret ──
+window.pickRandom = function() {
+  const alle = Object.values(retter);
+  if (!alle.length) { toast('Ingen retter at vælge fra 🍽️'); return; }
+  const valgt = alle[Math.floor(Math.random() * alle.length)];
+  document.getElementById('random-name').textContent = valgt.name;
+  const banner = document.getElementById('random-banner');
+  banner.style.display = 'block';
+};
+
+window.closeRandom = function() {
+  document.getElementById('random-banner').style.display = 'none';
+};
+
+// ── Render helpers ──
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Render counter ──
+function renderCounter() {
+  const total = Object.values(items).length;
+  const pending = Object.values(items).filter(v => !v.done).length;
+  document.getElementById('counter').textContent =
+    pending === 0 && total > 0 ? '✓ Alt taget!' : `${pending} tilbage`;
+}
+
+// ── Render indkøbsliste ──
+function renderList() {
+  const list = document.getElementById('list');
+  let entries = Object.entries(items).sort((a,b) => (a[1].created||0) - (b[1].created||0));
+
+  renderCounter();
+
+  if (!entries.length) {
+    list.innerHTML = `<div class="empty"><div class="emoji">🛒</div><p><strong>Listen er tom</strong></p><p>Tryk + for at tilføje varer</p></div>`;
+    return;
+  }
+
+  list.innerHTML = entries.map(([id, item]) => {
+    const hasExtras = item.note || item.link || item.img;
+    const qtyLabel = item.qty > 1 ? `<span class="item-qty">× ${item.qty}</span>` : '';
+
+    const extras = hasExtras ? `<div class="item-extras">
+      ${item.note ? `<div class="item-note">📝 ${escapeHtml(item.note)}</div>` : ''}
+      ${item.link ? `<a class="item-link" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">🔗 Se tilbud/ugeavis</a>` : ''}
+      ${item.img ? `<img class="item-img" src="${item.img}" alt="billede" onclick="openImgModal(this.src)" />` : ''}
+    </div>` : '';
+
+    return `<div class="item ${item.done ? 'done' : ''}" id="item-${id}">
+      <div class="item-main">
+        <button class="check-btn" onclick="toggleDone('${id}')">${item.done ? '✓' : ''}</button>
+        <div class="item-name">${escapeHtml(item.name)} ${qtyLabel}</div>
+        <div class="item-actions">
+          <button class="icon-btn" onclick="openEdit('${id}')" title="Rediger">✏️</button>
+          <button class="icon-btn del" onclick="deleteItem('${id}')" title="Slet">🗑</button>
+        </div>
+      </div>
+      ${extras}
+    </div>`;
+  }).join('');
+}
+
+// ── Render madretter ──
+function renderRetter() {
+  const list = document.getElementById('retter-list');
+  let entries = Object.entries(retter).sort((a,b) => (a[1].created||0) - (b[1].created||0));
+
+  // Planlagte øverst
+  entries.sort((a,b) => (b[1].planlagt ? 1 : 0) - (a[1].planlagt ? 1 : 0));
+
+  if (!entries.length) {
+    list.innerHTML = `<div class="empty"><div class="emoji">🍽️</div><p><strong>Ingen retter endnu</strong></p><p>Tryk + for at tilføje en ret</p></div>`;
+    return;
+  }
+
+  list.innerHTML = entries.map(([id, ret]) => {
+    const ikon = '🥘';
+
+    const ingrediensAntal = ret.ingredienser ? Object.keys(ret.ingredienser).length : 0;
+    const ingrediensTekst = ingrediensAntal > 0 ? `<span style="font-size:0.75rem;color:var(--muted);font-weight:600;">${ingrediensAntal} ingrediens${ingrediensAntal !== 1 ? 'er' : ''}</span>` : `<span style="font-size:0.75rem;color:#ccc;font-weight:600;">Tryk for ingredienser</span>`;
+
+    return `<div class="ret ${ret.planlagt ? 'planlagt' : ''}" id="ret-${id}" style="display:flex;align-items:center;">
+      <div class="ret-main" onclick="window.aabneIngredienser('${id}')" style="cursor:pointer;flex:1;">
+        <div class="ret-icon">${ikon}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="ret-name">${escapeHtml(ret.name)}</div>
+          ${ingrediensTekst}
+        </div>
+        ${ret.planlagt ? `<span class="planlagt-badge">🌙 I aften</span>` : ''}
+      </div>
+      <div class="item-actions" style="padding:0 10px 0 0;flex-shrink:0;">
+        <button class="plan-btn" onclick="event.stopPropagation();window.togglePlanlagt('${id}')" title="${ret.planlagt ? 'Fjern planlagt' : 'Planlagt til i aften'}">
+          ${ret.planlagt ? '✓' : '🌙'}
+        </button>
+        <button class="icon-btn" onclick="event.stopPropagation();window.openEditRet('${id}')" title="Rediger">✏️</button>
+        <button class="icon-btn del" onclick="event.stopPropagation();window.deleteRet('${id}')" title="Slet">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════
+// ── INGREDIENSER ──
+// ════════════════════════════════
+
+let aktivRetId = null;
+let aktivType = 'ret'; // 'ret' eller 'kage'
+
+function getRetIkon() {
+  return '🥘';
+}
+
+window.aabneIngredienser = function(retId) {
+  const ret = retter[retId];
+  if (!ret) return;
+  aktivRetId = retId;
+  aktivType = 'ret';
+
+  document.getElementById('ingredienser-ret-ikon').textContent = '🥘';
+  document.getElementById('ingredienser-ret-navn').textContent = ret.name;
+  document.getElementById('ny-ingrediens').value = '';
+  document.getElementById('opskrift-sektion').style.display = 'none';
+
+  renderIngredienserISheet(ret.ingredienser || {});
+  openSheet('ingredienser-sheet');
+  setTimeout(() => document.getElementById('ny-ingrediens').focus(), 350);
+};
+
+function renderIngredienserISheet(ingredienser) {
+  const liste = document.getElementById('ingredienser-liste');
+  const tilfoejBtn = document.getElementById('tilfoej-alle-btn');
+  const entries = Object.entries(ingredienser).sort((a,b) => (a[1].created||0) - (b[1].created||0));
+
+  tilfoejBtn.style.display = entries.length > 0 ? '' : 'none';
+
+  if (!entries.length) {
+    liste.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:0.9rem;font-weight:600;">Ingen ingredienser endnu – tilføj den første!</div>`;
+    return;
+  }
+
+  liste.innerHTML = entries.map(([ingId, ing]) => `
+    <div style="display:flex;align-items:center;gap:10px;background:#F9F7F4;border-radius:12px;padding:12px 14px;animation:slideIn 0.2s ease;">
+      <span style="font-size:1rem;">🛒</span>
+      <span style="flex:1;font-size:0.95rem;font-weight:700;">${escapeHtml(ing.navn)}</span>
+      <button onclick="window.sletIngrediens('${ingId}')"
+        style="width:30px;height:30px;border:none;background:none;cursor:pointer;color:#FF4444;font-size:1rem;border-radius:8px;display:flex;align-items:center;justify-content:center;">🗑</button>
+    </div>
+  `).join('');
+}
+
+window.tilfoejIngrediens = function() {
+  if (!aktivRetId) return;
+  const input = document.getElementById('ny-ingrediens');
+  const navn = input.value.trim();
+  if (!navn) { input.focus(); return; }
+
+  const ref = aktivType === 'kage' ? kagerRef : retterRef;
+  ref.child(aktivRetId).child('ingredienser').push({ navn, created: Date.now() });
+
+  input.value = '';
+  input.focus();
+  toast(`"${navn}" tilføjet ✓`);
+};
+
+window.sletIngrediens = function(ingId) {
+  if (!aktivRetId) return;
+  const ref = aktivType === 'kage' ? kagerRef : retterRef;
+  ref.child(aktivRetId).child('ingredienser').child(ingId).remove();
+};
+
+window.tilfoejAlleIngredienserTilIndkoeb = function() {
+  if (!aktivRetId) return;
+  const kilde = aktivType === 'kage' ? kager[aktivRetId] : retter[aktivRetId];
+  if (!kilde || !kilde.ingredienser) return;
+
+  const ingredienser = Object.values(kilde.ingredienser);
+  if (!ingredienser.length) return;
+
+  const eksisterendeNavne = Object.values(items).map(i => i.name.toLowerCase());
+  let tilfoejede = 0;
+  let sprungetOver = 0;
+
+  ingredienser.forEach(ing => {
+    if (eksisterendeNavne.includes(ing.navn.toLowerCase())) {
+      sprungetOver++;
+    } else {
+      itemsRef.push({
+        name: ing.navn,
+        qty: 1,
+        note: `Fra: ${kilde.name}`,
+        link: '', img: '', done: false,
+        created: Date.now()
+      });
+      tilfoejede++;
+    }
+  });
+
+  closeSheets();
+  if (sprungetOver > 0 && tilfoejede > 0) {
+    toast(`${tilfoejede} tilføjet, ${sprungetOver} fandtes allerede ✓`);
+  } else if (tilfoejede > 0) {
+    toast(`${tilfoejede} ingredienser tilføjet til indkøbslisten ✓`);
+  } else {
+    toast('Alle ingredienser er allerede på listen 👍');
+  }
+};
+
+// Opdater ingredienslisten live mens sheetet er åbent
+retterRef.on('child_changed', snap => {
+  if (snap.key === aktivRetId && document.getElementById('ingredienser-sheet').classList.contains('show')) {
+    const ret = snap.val();
+    renderIngredienserISheet(ret.ingredienser || {});
+  }
+});
+
+// ════════════════════════════════
+// ── KAGER ──
+// ════════════════════════════════
+
+const kagerRef = db.ref('/kager');
+
+document.getElementById('add-kage-btn').addEventListener('click', () => {
+  const name = document.getElementById('kage-name').value.trim();
+  if (!name) { toast('Skriv kagens navn 👆'); return; }
+  const opskrift = document.getElementById('kage-opskrift').value.trim();
+
+  kagerRef.push({ name, opskrift, created: Date.now() });
+  closeSheets();
+  document.getElementById('kage-name').value = '';
+  document.getElementById('kage-opskrift').value = '';
+  toast(`"${name}" tilføjet ✓`);
+});
+
+window.openEditKage = function(id) {
+  const kage = kager[id];
+  if (!kage) return;
+  document.getElementById('edit-kage-id').value = id;
+  document.getElementById('edit-kage-name').value = kage.name || '';
+  document.getElementById('edit-kage-opskrift').value = kage.opskrift || '';
+  openSheet('edit-kage-sheet');
+};
+
+document.getElementById('save-kage-btn').addEventListener('click', () => {
+  const id = document.getElementById('edit-kage-id').value;
+  const name = document.getElementById('edit-kage-name').value.trim();
+  if (!name) { toast('Kagens navn må ikke være tomt'); return; }
+  kagerRef.child(id).update({
+    name,
+    opskrift: document.getElementById('edit-kage-opskrift').value.trim()
+  });
+  closeSheets();
+  toast('Gemt ✓');
+});
+
+window.deleteKage = function(id) {
+  const kage = kager[id];
+  const navn = kage ? `"${kage.name}"` : 'denne kage';
+  if (!confirm(`Slet ${navn}?`)) return;
+  kagerRef.child(id).remove();
+  toast('Slettet 🗑');
+};
+
+function renderKager() {
+  const list = document.getElementById('kager-list');
+  const entries = Object.entries(kager).sort((a,b) => (a[1].created||0) - (b[1].created||0));
+
+  if (!entries.length) {
+    list.innerHTML = `<div class="empty"><div class="emoji">🧁</div><p><strong>Ingen kager endnu</strong></p><p>Tryk + for at tilføje en kage</p></div>`;
+    return;
+  }
+
+  list.innerHTML = entries.map(([id, kage]) => {
+    const ingrediensAntal = kage.ingredienser ? Object.keys(kage.ingredienser).length : 0;
+    const ingrediensTekst = ingrediensAntal > 0
+      ? `<span style="font-size:0.75rem;color:var(--muted);font-weight:600;">${ingrediensAntal} ingrediens${ingrediensAntal !== 1 ? 'er' : ''}</span>`
+      : `<span style="font-size:0.75rem;color:#ccc;font-weight:600;">Tryk for ingredienser</span>`;
+    const harOpskrift = kage.opskrift && kage.opskrift.trim().length > 0;
+
+    return `<div class="ret" id="kage-${id}" style="display:flex;align-items:center;">
+      <div class="ret-main" onclick="window.aabneKageIngredienser('${id}')" style="cursor:pointer;flex:1;">
+        <div class="ret-icon">🧁</div>
+        <div style="flex:1;min-width:0;">
+          <div class="ret-name">${escapeHtml(kage.name)}</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            ${ingrediensTekst}
+            ${harOpskrift ? `<span style="font-size:0.72rem;font-weight:700;color:var(--orange);">📋 Opskrift</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="item-actions" style="padding:0 10px 0 0;flex-shrink:0;">
+        <button class="icon-btn" onclick="event.stopPropagation();window.openEditKage('${id}')" title="Rediger">✏️</button>
+        <button class="icon-btn del" onclick="event.stopPropagation();window.deleteKage('${id}')" title="Slet">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+kagerRef.on('value', snap => {
+  kager = snap.val() || {};
+  renderKager();
+});
+
+// ── Åbn ingredienser for kage ──
+window.aabneKageIngredienser = function(kageId) {
+  const kage = kager[kageId];
+  if (!kage) return;
+  aktivRetId = kageId;
+  aktivType = 'kage';
+
+  document.getElementById('ingredienser-ret-ikon').textContent = '🧁';
+  document.getElementById('ingredienser-ret-navn').textContent = kage.name;
+  document.getElementById('ny-ingrediens').value = '';
+
+  // Vis opskrift hvis den findes
+  const opskriftSek = document.getElementById('opskrift-sektion');
+  const opskriftTekst = document.getElementById('opskrift-tekst');
+  if (kage.opskrift && kage.opskrift.trim()) {
+    opskriftTekst.textContent = kage.opskrift;
+    opskriftSek.style.display = '';
+  } else {
+    opskriftSek.style.display = 'none';
+  }
+
+  renderIngredienserISheet(kage.ingredienser || {});
+  openSheet('ingredienser-sheet');
+  setTimeout(() => document.getElementById('ny-ingrediens').focus(), 350);
+};
+
+// Opdater kage-ingrediensliste live
+kagerRef.on('child_changed', snap => {
+  if (snap.key === aktivRetId && aktivType === 'kage' && document.getElementById('ingredienser-sheet').classList.contains('show')) {
+    const kage = snap.val();
+    renderIngredienserISheet(kage.ingredienser || {});
+  }
+});
+
+// ── Firebase listeners ──
+itemsRef.on('value', snap => {
+  items = snap.val() || {};
+  renderList();
+});
+
+retterRef.on('value', snap => {
+  retter = snap.val() || {};
+  renderRetter();
+});
+
+
+
+}); // end window.onload
+</script>
+</body>
+</html>
